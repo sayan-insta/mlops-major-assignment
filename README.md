@@ -1,66 +1,83 @@
-#  MLOps Linear Regression Pipeline
+**--  MLOps Linear Regression Pipeline --**
 
-This project implements a complete MLOps pipeline using **Linear Regression** on the **California Housing Dataset**. It follows the full development lifecycle: training, testing, quantization, Dockerization, and CI/CD — all in a single `main` branch, without any manual web uploads.
+This project implements a complete MLOps pipeline using Linear Regression on the California Housing Dataset. It follows the full development lifecycle: training, testing, quantization, Dockerization, and CI/CD — all in a single main branch, without any manual web uploads.
+
 
 ##  Project Structure
-
-- `src/` contains:
-  - `train.py`: Trains the model and saves it.
-  - `predict.py`: Loads and runs predictions using the trained model.
-  - `quantize.py`: Manually quantizes model coefficients.
-  - `utils.py`: Helper functions (e.g., save/load model).
-- `tests/` contains:
-  - `test_train.py`: Unit tests for training pipeline.
-- `.github/workflows/ci.yml`: GitHub Actions pipeline with test, train, and build stages.
-- `Dockerfile`: Builds the container image for model inference.
-- `requirements.txt`: Python dependencies.
-- `model.joblib`: Trained model (if generated).
-- `README.md`: Project documentation.
+--**src/ contains:
+    **train.py: Trains the model and saves it.
+    **predict.py: Loads and runs predictions using the trained model.
+    **quantize.py: Manually quantizes model coefficients.
+    **utils.py: Helper functions (e.g., save/load model).
+--**tests/ contains:
+    **test_train.py: Unit tests for training pipeline.
+- **.github/workflows/ci.yml: GitHub Actions pipeline with test, train, and build stages.
+- **Dockerfile: Builds the container image for model inference.
+- **requirements.txt: Python dependencies.
+- **model.joblib: Trained model (if generated).
+- **README.md: Project documentation.
+---
 
 ##  Model Overview
 
-- **Model Used**: `LinearRegression` from `scikit-learn`
-- **Dataset**: California Housing (from `sklearn.datasets`)
-- **Split**: Train/Test with 80:20 ratio
-- **Metrics**:
-  - R² Score to evaluate goodness of fit
-  - Mean Squared Error to measure loss
+- **Model Used:** `LinearRegression` from scikit-learn
+- **Dataset:** California Housing (`sklearn.datasets`)
+- **Split:** 80% Train / 20% Test
+- **Evaluation Metrics:**
+  - R² Score (goodness of fit)
+  - Mean Squared Error (loss)
 
-##  Docker Integration
+---
 
-The project includes a Dockerfile that encapsulates dependencies and runs inference via `src/predict.py`. Once built, the Docker image can be used to verify predictions and portability of the trained model.
+## ️ Docker Integration
 
-##  CI/CD (GitHub Actions)
+This project includes a `Dockerfile` that runs `src/predict.py` inside a container. This validates the model inside an isolated environment for reproducible deployment.
 
-The repository includes a GitHub Actions pipeline that triggers on every push to `main`. It runs the following jobs in sequence:
+---
 
-1. **test-suite**: Runs unit tests using `pytest` to validate model training.
-2. **train-and-quantize**: Trains the model and performs quantization.
-3. **build-and-test-container**: Builds the Docker image and runs it to ensure predictions work correctly inside a container.
+##  CI/CD – GitHub Actions
 
-Each stage must pass for the pipeline to be considered successful.
+On every push to `main`, GitHub Actions runs:
 
-##  Model Comparison Table
-##  R² Score and File Size Comparison
+1. ** test-suite:** Unit tests via `pytest`
+2. ** train-and-quantize:** Model training and quantization
+3. ** build-and-test-container:** Docker image build + inference test
 
-| Metric                     | Before Quantization | After Quantization |
-|----------------------------|---------------------|--------------------|
-| R² Score                   | 0.5758              | 0.5747             |
-| Model File Size (joblib)   | 0.68 KB             | 0.37 KB            |
-| Quantization Method        | —                   | Fixed-point (×1000, int16) |
+All jobs must succeed for the pipeline to pass.
 
+---
+
+##  Model Performance
+
+###  R² Score and File Size Comparison
+
+| Metric                      | Original Model      | Quantized Model (uint8) |
+|----------------------------|---------------------|--------------------------|
+| **R² Score**               | 0.5758              | 0.5758                  |
+| **Mean Squared Error (MSE)** | 0.5559            | 0.5559                  |
+| **Model File Size**        | 0.04 KB             | 0.01 KB                 |
+| **Quantization Method**    | —                   | Per-weight, `uint8` (0–255) |
+
+>  Quantization successfully reduces model size without degrading accuracy.
+
+
+##  Quantization Method
+
+- **Approach:** Per-weight symmetric quantization
+- **Type:** `uint8` (0–255)
+- **Scaling:** Each weight is scaled individually for precision
+- **Dequantization:** Restores float coefficients for evaluation
 
 
 ##  Constraints Followed
 
-- Only `main` branch used.
-- No GitHub web uploads (all CLI-based).
-- Dockerized workflow tested and working.
-- CI/CD fully configured with GitHub Actions.
-- Code modularized into `src/`, `tests/`, and utils.
-- No hardcoded outputs or plagiarized code.
+- ️ Only `main` branch used
+- ️ All Git operations via CLI (no web uploads)
+- ️ Docker tested locally with `predict.py`
+- ️ CI/CD using GitHub Actions
+- ️ Code structured under `src/`, `tests/`, and `utils/`
+- ️ Fully modular and reproducible
+-  Final `README.md` and reports auto-generated
 
 ##  Final Notes
-
 The pipeline ensures reproducibility, automation, and containerized deployment. It reflects real-world MLOps practices and satisfies all assignment constraints.
-
